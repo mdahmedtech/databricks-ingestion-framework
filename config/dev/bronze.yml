@@ -1,0 +1,8 @@
+catalog: dev_catalog
+schema: ingestion
+source_path: s3://<dev-bucket>/raw_files/
+file_format: json
+multi_line: true
+target_table: bronze_orders
+write_mode: append
+ddl_file: bronze_orders.sql

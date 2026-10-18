@@ -1,0 +1,9 @@
+catalog: uat_catalog
+schema: ingestion
+source_tables:
+  fact_order_items: silver_fact_order_items
+  dim_product: silver_dim_product
+target_table: gold_daily_sales_by_category
+ddl_file: gold_daily_sales_by_category.sql
+order_status_filter: COMPLETED
+write_mode: overwrite

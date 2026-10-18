@@ -1,0 +1,12 @@
+catalog: uat_catalog
+schema: ingestion
+source_table: bronze_orders
+tables:
+  dim_customer: silver_dim_customer
+  dim_product: silver_dim_product
+  fact_order_items: silver_fact_order_items
+ddl_files:
+  - silver_dim_customer.sql
+  - silver_dim_product.sql
+  - silver_fact_order_items.sql
+write_mode: overwrite
