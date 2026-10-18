@@ -1,6 +1,6 @@
 catalog: prod_catalog
 schema: ingestion
-source_path: s3://<prod-bucket>/raw_files/
+source_path: s3://databricks-ingestion-customers-prod/raw_files/
 file_format: json
 multi_line: true
 target_table: bronze_orders
