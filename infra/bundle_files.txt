@@ -1,0 +1,50 @@
+
+###########################################
+`databricks.yml` (project root, local)
+
+1. What it is: The main bundle config file. It's the entry point of the Databricks Asset Bundle.
+2. Purpose: It defines the project and where it deploys: which environments (dev, uat, prod), which workspace, and how to build the code.
+3. What it contains:
+   * the bundle name (`databricks_ingestion_framework`)
+   * `include: resources/*.yml`, which pulls in the job file
+   * `artifacts`, which builds the wheel with `python -m build --wheel`
+   * `sync.exclude`, which skips `infra/**`, `tests/**` and `.idea/**`
+   * `targets` for dev, uat and prod, each with its workspace host
+4. Important sections and things to note:
+   * Mandatory: `bundle.name`, and `targets` with a workspace host for each one.
+   * `mode: development` on dev adds a `[dev user]` prefix to the job name and pauses schedules. That's why the job names differed.
+   * The `targets` block is what makes the same code deploy to different environments.
+   * `include` must point at the real folder, or the job isn't deployed.
+
+###########################################
+`resources/ingestion_job.yml` (local)
+1. What it is: The job definition, a resource file that the bundle includes.
+2. Purpose: It defines the Databricks job: what runs, in what order, on what schedule.
+3. What it contains:
+   * the job name (`orders_daily_load_${bundle.target}`)
+   * the schedule (cron `0 0 9 * * ?`, America/Chicago)
+   * `environments`, the serverless environment that installs the wheel
+   * three tasks: bronze, then silver, then gold
+   * the `python_wheel_task` for each, with `named_parameters` (`env`, `config_dir`, `ddl_dir`)
+4. Important sections and things to note:
+   * Mandatory: `tasks`, a `task_key` for each, the compute or environment, and `package_name` plus `entry_point` in each task.
+   * `package_name` must match the name in `pyproject.toml`, and `entry_point` must match its `[project.scripts]`. A mismatch gives "module not found".
+   * `depends_on` sets the order (silver after bronze, gold after silver).
+   * `${bundle.target}` and `${workspace.file_path}` are filled in at deploy time, so the same file works for every environment.
+   * The cron uses Quartz format with a timezone.
+
+###########################################
+`.github/workflows/deploy.yml` (GitHub)
+1. What it is: The GitHub Actions workflow file, the CI/CD pipeline definition.
+2. Purpose: It runs the deployment automatically on every push, so nobody deploys by hand.
+3. What it contains:
+   * `on`, the triggers (pull request, push to `main`, manual)
+   * `env`, with `DATABRICKS_HOST` and the token from secrets
+   * four jobs: `validate` (PRs only), `deploy-dev`, `terraform` and `deploy-prod`
+4. Important sections and things to note:
+   * Mandatory: `on`, `jobs`, and in each job `runs-on` and `steps`.
+   * `needs: [deploy-dev, terraform]` makes prod wait for both.
+   * `environment: prod` is where an approval gate would be added.
+   * Secret names (`DATABRICKS_GITHUB_ACTION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) must match what's in the repo settings exactly.
+   * `if: github.event_name ...` controls which jobs run on pull requests versus pushes.
+   * YAML indentation errors are the most common failure.

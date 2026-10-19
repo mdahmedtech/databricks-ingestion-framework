@@ -1,0 +1,41 @@
+TERRAFORM - MY NOTES
+
+What I built
+- main.tf creates the prod backup bucket (databricks-ingestion-customers-backup-prod) and a daily_sales_by_category/ folder in it, with versioning, encryption and public access blocked.
+  - What it is: the main Terraform file. It describes the infrastructure I want, and Terraform makes AWS match it.
+  - Why it matters: the bucket is created by code in the repo, not by clicking in the console, so it is repeatable, reviewable and the same every time.
+  - Its role: it is the desired state. If someone changes the bucket by hand, the next plan shows the difference and apply puts it back.
+  - The settings: versioning keeps old copies of backups, encryption protects data at rest, and the public access block makes sure the bucket can never be exposed.
+  - The folder: S3 has no real folders, so Terraform creates an empty marker object so the folder exists before any backup is written.
+  - Three kinds of blocks in the file:
+    - provider: tells Terraform to use AWS in us-east-1.
+    - resource: the things to create. One for the bucket, plus one each for the folder, versioning, encryption and public access block.
+    - output: prints the bucket name after apply.
+  - The extra resources point at the bucket, so Terraform creates the bucket first.
+
+- backend.tf keeps Terraform state in S3 (databricks-ingestion-terraform-state).
+  - What it is: the backend tells Terraform where to store its state file, the record of what it has built.
+  - Why it matters: each pipeline run starts on a fresh machine, so without saved state Terraform would not know the bucket already exists.
+  - Its role: Terraform compares my .tf code with this state to decide what to create, change or skip. That is what makes repeated runs safe.
+  - Extras: S3 versioning lets me recover an old state, and use_lockfile stops two runs changing it at once.
+  - Blocks in the file:
+    - terraform: the settings block for Terraform itself.
+    - backend "s3": which bucket (bucket), which file inside it (key), which region (region) and locking (use_lockfile).
+- It runs as a "terraform" job in my GitHub Actions deploy.yml; deploy-prod needs it, so infra is ready before prod deploys.
+
+Why the state bucket
+- GitHub runners are wiped every run; the state file is how Terraform remembers the bucket already exists.
+- Without it, the second run fails with "already exists". With it, I got "No changes".
+- Terraform can't create its own state bucket, so the pipeline creates it once with an AWS CLI step.
+
+Commands
+- init: set up provider and S3 backend
+- fmt: check formatting
+- validate: check the config is valid
+- plan: preview changes
+- apply: make the changes (push to main only)
+
+Next steps I would take
+- OIDC instead of AWS keys
+- manual approval between plan and apply
+- manage Databricks external locations and catalogs in Terraform
