@@ -19,3 +19,6 @@ databricks bundle deploy -t "${TARGET}"
 
 echo ">> Running job medallion_pipeline (target: ${TARGET})"
 databricks bundle run -t "${TARGET}" medallion_pipeline
+
+
+rm -rf /Users/ahmed/m2/git/databricks-ingestion-framework/src/*.egg-info build
