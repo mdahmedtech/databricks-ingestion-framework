@@ -11,3 +11,10 @@ CREATE CATALOG IF NOT EXISTS dev_customers
 CREATE SCHEMA IF NOT EXISTS dev_customers.bronze;
 CREATE SCHEMA IF NOT EXISTS dev_customers.silver;
 CREATE SCHEMA IF NOT EXISTS dev_customers.gold;
+
+
+
+-- Confirm the storage root of each catalog (look for the matching bucket)
+DESCRIBE CATALOG EXTENDED dev_customers;
+DESCRIBE schema EXTENDED dev_customers.bronze
+

@@ -10,3 +10,7 @@ CREATE CATALOG IF NOT EXISTS prod_customers
 CREATE SCHEMA IF NOT EXISTS prod_customers.bronze;
 CREATE SCHEMA IF NOT EXISTS prod_customers.silver;
 CREATE SCHEMA IF NOT EXISTS prod_customers.gold;
+
+-- Confirm the storage root of each catalog (look for the matching bucket)
+DESCRIBE CATALOG EXTENDED prod_customers;
+DESCRIBE schema EXTENDED prod_customers.bronze
