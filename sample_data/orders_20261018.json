@@ -1,0 +1,56 @@
+[
+  {
+    "order_id": "ORD-1001",
+    "order_ts": "2026-10-15T09:12:45Z",
+    "status": "COMPLETED",
+    "currency": "USD",
+    "customer": {
+      "customer_id": "C001", "first_name": "Maria", "last_name": "Lopez",
+      "email": "maria.lopez@example.com", "country": "US", "state": "AZ"
+    },
+    "items": [
+      { "product_id": "P100", "product_name": "Wireless Mouse", "category": "Electronics", "quantity": 2, "unit_price": 25.50 },
+      { "product_id": "P200", "product_name": "USB-C Cable", "category": "Electronics", "quantity": 1, "unit_price": 9.99 }
+    ]
+  },
+  {
+    "order_id": "ORD-1002",
+    "order_ts": "2026-10-15T14:30:10Z",
+    "status": "COMPLETED",
+    "currency": "USD",
+    "customer": {
+      "customer_id": "C002", "first_name": "James", "last_name": "Carter",
+      "email": "james.carter@example.com", "country": "US", "state": "CA"
+    },
+    "items": [
+      { "product_id": "P300", "product_name": "Desk Lamp", "category": "Home", "quantity": 1, "unit_price": 39.00 }
+    ]
+  },
+  {
+    "order_id": "ORD-1003",
+    "order_ts": "2026-10-16T11:05:00Z",
+    "status": "CANCELLED",
+    "currency": "USD",
+    "customer": {
+      "customer_id": "C001", "first_name": "Maria", "last_name": "Lopez",
+      "email": "maria.lopez@example.com", "country": "US", "state": "AZ"
+    },
+    "items": [
+      { "product_id": "P400", "product_name": "Standing Desk", "category": "Furniture", "quantity": 1, "unit_price": 349.00 }
+    ]
+  },
+  {
+    "order_id": "ORD-1004",
+    "order_ts": "2026-10-17T18:45:30Z",
+    "status": "COMPLETED",
+    "currency": "USD",
+    "customer": {
+      "customer_id": "C003", "first_name": "Aisha", "last_name": "Khan",
+      "email": "aisha.khan@example.com", "country": "CA", "state": "ON"
+    },
+    "items": [
+      { "product_id": "P100", "product_name": "Wireless Mouse", "category": "Electronics", "quantity": 1, "unit_price": 25.50 },
+      { "product_id": "P300", "product_name": "Desk Lamp", "category": "Home", "quantity": 2, "unit_price": 39.00 }
+    ]
+  }
+]
