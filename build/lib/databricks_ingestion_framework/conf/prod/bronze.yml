@@ -1,0 +1,8 @@
+catalog: prod_customers
+schema: bronze
+source_path: s3://databricks-ingestion-customers-prod/raw_files/
+file_format: json
+multi_line: true
+target_table: orders
+write_mode: append
+ddl_file: orders.sql

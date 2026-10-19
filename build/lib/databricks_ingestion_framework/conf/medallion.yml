@@ -1,0 +1,11 @@
+# Shared defaults for every job and environment.
+# Job-specific files (config/<env>/<job>.yml) override these values.
+app_name: databricks-ingestion-framework
+
+logging:
+  level: INFO
+  format: "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+
+write:
+  format: delta
+  merge_schema: false
