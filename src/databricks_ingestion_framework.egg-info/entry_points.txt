@@ -1,0 +1,4 @@
+[console_scripts]
+bronze = databricks_ingestion_framework.bronze:main
+gold = databricks_ingestion_framework.gold:main
+silver = databricks_ingestion_framework.silver:main

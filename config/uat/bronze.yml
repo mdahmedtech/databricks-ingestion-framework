@@ -1,8 +1,8 @@
-catalog: uat_catalog
-schema: ingestion
+catalog: uat_customers
+schema: bronze
 source_path: s3://databricks-ingestion-customers-uat/raw_files/
 file_format: json
 multi_line: true
-target_table: bronze_orders
+target_table: orders
 write_mode: append
-ddl_file: bronze_orders.sql
+ddl_file: orders.sql

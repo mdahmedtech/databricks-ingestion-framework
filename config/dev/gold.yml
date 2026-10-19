@@ -1,9 +1,10 @@
-catalog: dev_catalog
-schema: ingestion
+catalog: dev_customers
+schema: gold
+source_schema: silver
 source_tables:
-  fact_order_items: silver_fact_order_items
-  dim_product: silver_dim_product
-target_table: gold_daily_sales_by_category
-ddl_file: gold_daily_sales_by_category.sql
+  fact_order_items: fact_order_items
+  dim_product: dim_product
+target_table: daily_sales_by_category
+ddl_file: daily_sales_by_category.sql
 order_status_filter: COMPLETED
 write_mode: overwrite

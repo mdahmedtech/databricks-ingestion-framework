@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "databricks_ingestion_framework"
+version = "0.1.0"
+description = "Config-driven medallion ingestion framework for Databricks"
+requires-python = ">=3.10"
+# pyspark is provided by the Databricks runtime, so it is deliberately not listed here.
+dependencies = ["pyyaml>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest", "build"]
+
+# One entry point per job; the job definition's python_wheel_task refers to these names.
+[project.scripts]
+bronze = "databricks_ingestion_framework.bronze:main"
+silver = "databricks_ingestion_framework.silver:main"
+gold   = "databricks_ingestion_framework.gold:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

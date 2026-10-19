@@ -1,6 +1,6 @@
 -- Bronze: raw orders exactly as received, nested structure preserved.
 -- Placeholders {catalog} and {schema} are filled from config/<env>/bronze.yml
-CREATE TABLE IF NOT EXISTS {catalog}.{schema}.bronze_orders (
+CREATE TABLE IF NOT EXISTS {catalog}.{schema}.orders (
   order_id     STRING,
   order_ts     STRING,
   status       STRING,

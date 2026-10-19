@@ -1,5 +1,5 @@
 -- Silver: customer dimension, one row per customer (latest record wins).
-CREATE TABLE IF NOT EXISTS {catalog}.{schema}.silver_dim_customer (
+CREATE TABLE IF NOT EXISTS {catalog}.{schema}.dim_customer (
   customer_id  STRING NOT NULL,
   first_name   STRING,
   last_name    STRING,

@@ -1,5 +1,5 @@
 -- Silver: order line fact, one row per item per order.
-CREATE TABLE IF NOT EXISTS {catalog}.{schema}.silver_fact_order_items (
+CREATE TABLE IF NOT EXISTS {catalog}.{schema}.fact_order_items (
   order_id     STRING NOT NULL,
   customer_id  STRING NOT NULL,
   product_id   STRING NOT NULL,

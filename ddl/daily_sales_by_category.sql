@@ -1,5 +1,5 @@
 -- Gold: daily revenue by product category, completed orders only.
-CREATE TABLE IF NOT EXISTS {catalog}.{schema}.gold_daily_sales_by_category (
+CREATE TABLE IF NOT EXISTS {catalog}.{schema}.daily_sales_by_category (
   order_date    DATE,
   category      STRING,
   total_orders  BIGINT,
