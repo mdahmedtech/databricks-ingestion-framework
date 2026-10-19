@@ -68,6 +68,17 @@ resources:
 #         - job_cluster_key: main
 #           new_cluster:
 #             spark_version: <runtime version>
+#              spark_conf:
+#                spark.sql.shuffle.partitions: "64"
+#                spark.sql.adaptive.enabled: "true"
+#                spark.sql.adaptive.coalescePartitions.enabled: "true"
+#                spark.sql.adaptive.skewJoin.enabled: "true"
+#                spark.sql.autoBroadcastJoinThreshold: "104857600"
+#                spark.sql.files.maxPartitionBytes: "134217728"
+#                spark.databricks.delta.optimizeWrite.enabled: "true"
+#                spark.databricks.delta.autoCompact.enabled: "true"
+#                spark.databricks.delta.schema.autoMerge.enabled: "true"
+#                spark.sql.session.timeZone: "UTC"
 #             node_type_id: r5.xlarge
 #             autoscale:
 #               min_workers: 1
