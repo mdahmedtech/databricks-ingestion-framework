@@ -3,7 +3,7 @@
                  +---------------------------+
                  |        dim_customer       |
                  |---------------------------|
-                 | PK customer_id            |
+                 |    PK customer_id         |
                  |    first_name, last_name  |
                  |    email (PII, lowercase) |
                  |    country, state         |
@@ -30,7 +30,7 @@
                  +-------------+-------------+
                  |        dim_product        |
                  |---------------------------|
-                 | PK product_id             |
+                 |    PK product_id          |
                  |    product_name           |
                  |    category               |
                  +---------------------------+
