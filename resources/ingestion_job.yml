@@ -2,6 +2,7 @@ resources:
   jobs:
     medallion_pipeline:
       name: orders_daily_load_${bundle.target}
+      timeout_seconds: 3600
       schedule:
         quartz_cron_expression: "0 0 9 * * ?"
         timezone_id: America/Chicago
@@ -50,3 +51,40 @@ resources:
               env: ${bundle.target}
               config_dir: ${workspace.file_path}/config
               ddl_dir: ${workspace.file_path}/ddl
+
+# ---------------------------------------------------------------------------
+# ALTERNATIVE: classic compute (EC2) instead of serverless. Not active.
+# Needs a paid workspace. To switch: remove the "environments" block and
+# "environment_key" lines above, then use this job_clusters block.
+# Illustration only, untested.
+# ---------------------------------------------------------------------------
+# resources:
+#   jobs:
+#     medallion_pipeline:
+#       name: orders_daily_load_${bundle.target}
+#       timeout_seconds: 3600
+#
+#       job_clusters:
+#         - job_cluster_key: main
+#           new_cluster:
+#             spark_version: <runtime version>
+#             node_type_id: r5.xlarge
+#             autoscale:
+#               min_workers: 1
+#               max_workers: 4
+#             driver_node_type_id: r5.xlarge
+#             num_workers: 2          # 1 driver + 2 workers = 3 machines
+#             data_security_mode: SINGLE_USER
+#
+#       tasks:
+#         - task_key: bronze
+#           job_cluster_key: main
+#           libraries:
+#             - whl: ../dist/*.whl
+#           python_wheel_task:
+#             package_name: databricks_ingestion_framework
+#             entry_point: bronze
+#             named_parameters:
+#               env: ${bundle.target}
+#               config_dir: ${workspace.file_path}/config
+#               ddl_dir: ${workspace.file_path}/ddl
