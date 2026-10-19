@@ -1,0 +1,40 @@
+"""Silver layer: star schema built from bronze.orders.
+
+                 +---------------------------+
+                 |        dim_customer       |
+                 |---------------------------|
+                 | PK customer_id            |
+                 |    first_name, last_name  |
+                 |    email (PII, lowercase) |
+                 |    country, state         |
+                 |    updated_at             |
+                 +-------------+-------------+
+                               | 1
+                               |
+                               | many
+                 +-------------+-------------+
+                 |     fact_order_items      |
+                 |---------------------------|
+                 |    order_id               |
+                 |    FK customer_id         |
+                 |    FK product_id          |
+                 |    order_ts, order_date   |
+                 |    status, currency       |
+                 |    quantity               |
+                 |    unit_price             |
+                 |    line_total             |
+                 +-------------+-------------+
+                               | many
+                               |
+                               | 1
+                 +-------------+-------------+
+                 |        dim_product        |
+                 |---------------------------|
+                 | PK product_id             |
+                 |    product_name           |
+                 |    category               |
+                 +---------------------------+
+
+Grain of the fact table: one row per product line within an order.
+Gold (daily_sales_by_category) aggregates the fact joined to dim_product.
+"""

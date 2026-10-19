@@ -20,6 +20,8 @@ resources:
             entry_point: bronze
             named_parameters:
               env: ${bundle.target}
+              config_dir: ${workspace.file_path}/config
+              ddl_dir: ${workspace.file_path}/ddl
 
         - task_key: silver
           depends_on:
@@ -30,6 +32,8 @@ resources:
             entry_point: silver
             named_parameters:
               env: ${bundle.target}
+              config_dir: ${workspace.file_path}/config
+              ddl_dir: ${workspace.file_path}/ddl
 
         - task_key: gold
           depends_on:
@@ -40,3 +44,5 @@ resources:
             entry_point: gold
             named_parameters:
               env: ${bundle.target}
+              config_dir: ${workspace.file_path}/config
+              ddl_dir: ${workspace.file_path}/ddl

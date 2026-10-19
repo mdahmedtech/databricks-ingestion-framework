@@ -22,6 +22,3 @@ gold   = "databricks_ingestion_framework.gold:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
-# Ship the config and DDL files inside the wheel.
-[tool.setuptools.package-data]
-databricks_ingestion_framework = ["conf/*.yml", "conf/*/*.yml", "ddl/*.sql"]
