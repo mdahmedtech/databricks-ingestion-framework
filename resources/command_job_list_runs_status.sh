@@ -16,13 +16,13 @@
 # Remember: `get-run` uses the Job Run ID; `get-run-output` uses the Task Run ID.
 
 # list of jobs
-databricks jobs list
+databricks jobs list --limit 20
 
 # For all jobs and their recent runs, use:
 databricks jobs list-runs --limit 20
 
 # For only active runs:
-databricks jobs list-runs --active-only
+databricks jobs list-runs --active-only  --limit 20
 
 
 # 1. List runs for a specific job
