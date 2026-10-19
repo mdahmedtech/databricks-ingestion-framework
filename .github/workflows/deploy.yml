@@ -5,13 +5,10 @@ on:
     branches: [main]
   push:
     branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "sample_data/**"
   workflow_dispatch:
-    inputs:
-      target:
-        description: Environment to deploy
-        type: choice
-        options: [dev, uat, prod]
-        default: dev
 
 env:
   DATABRICKS_HOST: https://dbc-b6c519c3-97eb.cloud.databricks.com
@@ -29,8 +26,9 @@ jobs:
       - run: pip install build
       - uses: databricks/setup-cli@main
       - run: databricks bundle validate -t dev
+      - run: databricks bundle validate -t prod
 
-  deploy:
+  deploy-dev:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -40,6 +38,18 @@ jobs:
           python-version: "3.12"
       - run: pip install build
       - uses: databricks/setup-cli@main
-      - run: databricks bundle validate -t ${{ inputs.target || 'dev' }}
-      - run: databricks bundle deploy -t ${{ inputs.target || 'dev' }}
-      - run: databricks bundle run -t ${{ inputs.target || 'dev' }} medallion_pipeline
+      - run: bash scripts/deploy_dev.sh
+
+  deploy-prod:
+    needs: deploy-dev
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install build
+      - uses: databricks/setup-cli@main
+      - run: bash scripts/deploy_prod.sh
