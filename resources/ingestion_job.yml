@@ -1,0 +1,23 @@
+resources:
+  jobs:
+    medallion_pipeline:
+      name: medallion_pipeline_${bundle.target}
+
+      # Serverless compute. The wheel built from this repo is installed in the job environment.
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "3"
+            dependencies:
+              - ../dist/*.whl
+
+      tasks:
+        - task_key: bronze
+          environment_key: default
+          python_wheel_task:
+            package_name: databricks_ingestion_framework
+            entry_point: bronze
+            named_parameters:
+              env: ${bundle.target}
+              config_dir: ${workspace.file_path}/config
+              ddl_dir: ${workspace.file_path}/ddl
