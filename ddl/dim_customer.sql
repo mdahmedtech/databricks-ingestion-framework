@@ -9,4 +9,5 @@ CREATE TABLE IF NOT EXISTS {catalog}.{schema}.dim_customer (
   updated_at   TIMESTAMP COMMENT 'Timestamp of the order the record came from'
 )
 USING DELTA
+LOCATION 's3://databricks-ingestion-customers-{env}/{schema}/dim_customer'
 COMMENT 'Customer dimension, deduplicated to the latest record per customer.';

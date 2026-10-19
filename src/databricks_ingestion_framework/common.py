@@ -37,7 +37,7 @@ def setup(job_name):
     parser = argparse.ArgumentParser()
     parser.add_argument("--env", required=True)  # dev | uat | prod
     parser.add_argument("--config_dir", default=package_path("conf"))  # optional override
-    parser.add_argument("--ddl_dir", default=package_path("ddl"))      # optional override
+    parser.add_argument("--ddl_dir", default=package_path("ddl"))  # optional override
     args = parser.parse_args()
 
     cfg = load_config(args.config_dir, args.env, job_name)
@@ -59,5 +59,5 @@ def setup(job_name):
 def run_ddl(spark, ddl_dir, filename, catalog, schema):
     """Create the schema if needed, then run one DDL file ({catalog} and {schema} are filled in)."""
     spark.sql(f"CREATE SCHEMA IF NOT EXISTS {catalog}.{schema}")
-    sql = (Path(ddl_dir) / filename).read_text().format(catalog=catalog, schema=schema)
+    sql = (Path(ddl_dir) / filename).read_text().format(catalog=catalog, schema=schema, env=catalog.split("_")[0])
     spark.sql(sql.strip().rstrip(";"))

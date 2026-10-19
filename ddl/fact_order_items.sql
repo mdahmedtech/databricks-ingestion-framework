@@ -12,4 +12,5 @@ CREATE TABLE IF NOT EXISTS {catalog}.{schema}.fact_order_items (
   line_total   DECIMAL(12,2)
 )
 USING DELTA
+LOCATION 's3://databricks-ingestion-customers-{env}/{schema}/fact_order_items'
 COMMENT 'Exploded and deduplicated order lines. Joins to the customer and product dimensions.';

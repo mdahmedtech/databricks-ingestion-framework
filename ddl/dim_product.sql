@@ -5,4 +5,5 @@ CREATE TABLE IF NOT EXISTS {catalog}.{schema}.dim_product (
   category      STRING
 )
 USING DELTA
+LOCATION 's3://databricks-ingestion-customers-{env}/{schema}/dim_product'
 COMMENT 'Product dimension derived from order line items.';
