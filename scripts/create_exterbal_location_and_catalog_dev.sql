@@ -8,3 +8,6 @@ CREATE CATALOG IF NOT EXISTS dev_customers
 
 
 
+CREATE SCHEMA IF NOT EXISTS dev_customers.bronze;
+CREATE SCHEMA IF NOT EXISTS dev_customers.silver;
+CREATE SCHEMA IF NOT EXISTS dev_customers.gold;

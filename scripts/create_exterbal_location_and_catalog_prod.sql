@@ -5,3 +5,8 @@ CREATE EXTERNAL LOCATION IF NOT EXISTS ingestion_customers_prod
 
 CREATE CATALOG IF NOT EXISTS prod_customers
   MANAGED LOCATION 's3://databricks-ingestion-customers-prod/';
+
+
+CREATE SCHEMA IF NOT EXISTS prod_customers.bronze;
+CREATE SCHEMA IF NOT EXISTS prod_customers.silver;
+CREATE SCHEMA IF NOT EXISTS prod_customers.gold;
