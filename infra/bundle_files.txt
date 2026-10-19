@@ -4,47 +4,54 @@
 
 1. What it is: The main bundle config file. It's the entry point of the Databricks Asset Bundle.
 2. Purpose: It defines the project and where it deploys: which environments (dev, uat, prod), which workspace, and how to build the code.
-3. What it contains:
-   * the bundle name (`databricks_ingestion_framework`)
-   * `include: resources/*.yml`, which pulls in the job file
-   * `artifacts`, which builds the wheel with `python -m build --wheel`
-   * `sync.exclude`, which skips `infra/**`, `tests/**` and `.idea/**`
-   * `targets` for dev, uat and prod, each with its workspace host
-4. Important sections and things to note:
-   * Mandatory: `bundle.name`, and `targets` with a workspace host for each one.
-   * `mode: development` on dev adds a `[dev user]` prefix to the job name and pauses schedules. That's why the job names differed.
-   * The `targets` block is what makes the same code deploy to different environments.
-   * `include` must point at the real folder, or the job isn't deployed.
+3. What each section does
+bundle: name: The bundle’s name. It identifies the deployment, and it appears in the workspace path and in ${bundle.name}.
+include: Tells the bundle which other YAML files to read. resources/*.yml pulls in ingestion_job.yml, so the job is part of this bundle without being written in this file. It keeps databricks.yml small.
+artifacts: What to build before deploying. It builds the Python wheel with python -m build --wheel, and path: . means to build from the project root. The job installs that wheel.
+sync: exclude: Which local files not to upload to the workspace: infra/, tests/ and .idea/. Everything else, such as config/ and ddl/, is uploaded.
+targets: The environments the same bundle deploys to: dev, uat and prod.
+dev is mode: development and default: true. That mode prefixes the job name and pauses schedules, and default means dev is used when you don’t pass -t.
+workspace: host is which workspace to deploy to. All three use the same one here.
+root_path on uat and prod sets where the bundle files go in the workspace. Without it, the default path would be used, and each target keeps its own copy of the code.
 
 ###########################################
-`resources/ingestion_job.yml` (local)  The job definition for running pipelines
-1. What it is: The job definition, a resource file that the bundle includes.
-2. Purpose: It defines the Databricks job: what runs, in what order, on what schedule.
-3. What it contains:
-   * the job name (`orders_daily_load_${bundle.target}`)
-   * the schedule (cron `0 0 9 * * ?`, America/Chicago)
-   * `environments`, the serverless environment that installs the wheel
-   * three tasks: bronze, then silver, then gold
-   * the `python_wheel_task` for each, with `named_parameters` (`env`, `config_dir`, `ddl_dir`)
-4. Important sections and things to note:
-   * Mandatory: `tasks`, a `task_key` for each, the compute or environment, and `package_name` plus `entry_point` in each task.
-   * `package_name` must match the name in `pyproject.toml`, and `entry_point` must match its `[project.scripts]`. A mismatch gives "module not found".
-   * `depends_on` sets the order (silver after bronze, gold after silver).
-   * `${bundle.target}` and `${workspace.file_path}` are filled in at deploy time, so the same file works for every environment.
-   * The cron uses Quartz format with a timezone.
+resources/ingestion_job.yml (local). The job definition for running pipelines
+1. What it is: The job definition, a resource file that the bundle includes through include: resources/*.yml in databricks.yml.
+2. Purpose: It defines the Databricks job: what runs, in what order, and on what schedule.
+3. What each section does
+resources: jobs: medallion_pipeline: Declares one job. medallion_pipeline is the bundle’s internal name for it, not the name shown in Databricks.
+name: The job name shown in Databricks, orders_daily_load_${bundle.target}. The target fills in at deploy time, which gives orders_daily_load_dev and orders_daily_load_prod.
+schedule: When the job runs. quartz_cron_expression: "0 0 9 * * ?" means every day at 9:00, timezone_id is America/Chicago, and pause_status: UNPAUSED keeps it active. Quartz cron has a seconds field first, unlike standard cron.
+environments: The serverless environment the tasks run in. It sets environment_version: "3" and lists the wheel under dependencies, so the wheel is installed before the tasks start. Each task points to it with environment_key: default.
+tasks: The steps of the job: bronze, silver and gold. Each has a task_key, which is its name.
+depends_on: Sets the order. Silver waits for bronze, and gold waits for silver.
+python_wheel_task: Tells a task what to run from the wheel.
+package_name is the wheel’s package name (databricks_ingestion_framework). It must match the name in pyproject.toml.
+entry_point is the function to run (bronze, silver or gold). It must match [project.scripts] in pyproject.toml. A mismatch on either gives “module not found”.
+named_parameters passes env, config_dir and ddl_dir to the code. ${bundle.target} supplies the environment, and ${workspace.file_path} points to the synced config/ and ddl/ folders.
+Mandatory: tasks, a task_key for each, the compute or environment, and package_name plus entry_point in each task.
 
 ###########################################
-`.github/workflows/deploy.yml` (GitHub)   The GitHub Actions workflow file, the CI/CD pipeline definition.
-1. What it is: The GitHub Actions workflow file, the CI/CD pipeline definition.
-2. Purpose: It runs the deployment automatically on every push, so nobody deploys by hand.
-3. What it contains:
-   * `on`, the triggers (pull request, push to `main`, manual)
-   * `env`, with `DATABRICKS_HOST` and the token from secrets
-   * four jobs: `validate` (PRs only), `deploy-dev`, `terraform` and `deploy-prod`
-4. Important sections and things to note:
-   * Mandatory: `on`, `jobs`, and in each job `runs-on` and `steps`.
-   * `needs: [deploy-dev, terraform]` makes prod wait for both.
-   * `environment: prod` is where an approval gate would be added.
-   * Secret names (`DATABRICKS_GITHUB_ACTION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) must match what's in the repo settings exactly.
-   * `if: github.event_name ...` controls which jobs run on pull requests versus pushes.
-   * YAML indentation errors are the most common failure.
+.github/workflows/deploy.yml (GitHub). The CI/CD pipeline definition
+
+1. What it is: The GitHub Actions workflow file. GitHub reads every file in .github/workflows/ and runs it when its triggers fire.
+2. Purpose: It runs validation and deployment automatically, so nobody deploys by hand. A pull request is checked, and a push to main deploys.
+3. What each section does
+name: The workflow’s name, deploy, as shown in the Actions tab.
+on: The triggers.
+pull_request to main runs the validation.
+push to main runs the deployment, with paths-ignore skipping docs (**.md) and sample_data/**.
+workflow_dispatch allows a manual run from the UI.
+env: Variables available to every job. DATABRICKS_HOST is the workspace URL, and DATABRICKS_TOKEN is read from the secret DATABRICKS_GITHUB_ACTION. The Databricks CLI picks both up automatically.
+jobs: The pipeline stages, each on its own runner (runs-on: ubuntu-latest).
+validate: Runs only on pull requests. It builds the wheel and runs databricks bundle validate for dev and prod. It deploys nothing.
+deploy-dev: Runs on pushes. It sets up Python and the CLI, then runs scripts/deploy_dev.sh to validate, deploy and run the bundle on dev.
+terraform: Runs the infrastructure steps with the AWS secrets. It creates the state bucket if missing, then runs init, fmt, validate and plan, and apply on pushes only.
+deploy-prod: Runs scripts/deploy_prod.sh. It has needs: [deploy-dev, terraform], so it starts only if both succeeded, and environment: prod.
+steps: The ordered actions in each job: checkout the code, setup-python, setup-cli or setup-terraform, then run commands.
+Things to note:
+Mandatory: on, jobs, and in each job runs-on and steps.
+environment: prod is where a manual approval gate would be configured.
+Secret names (DATABRICKS_GITHUB_ACTION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) must match the repo settings exactly.
+if: github.event_name ... controls which jobs run on pull requests versus pushes.
+YAML indentation errors are the most common failure.
