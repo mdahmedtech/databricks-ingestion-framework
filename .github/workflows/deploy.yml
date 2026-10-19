@@ -59,7 +59,7 @@ jobs:
         run: terraform -chdir=infra/backup apply -auto-approve
 
   deploy-prod:
-    eeds: [deploy-dev, terraform]
+    needs: [deploy-dev, terraform]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment: prod
