@@ -1,6 +1,6 @@
 
 ###########################################
-`databricks.yml` (project root, local)
+`databricks.yml` (project root, local)  The main bundle config file
 
 1. What it is: The main bundle config file. It's the entry point of the Databricks Asset Bundle.
 2. Purpose: It defines the project and where it deploys: which environments (dev, uat, prod), which workspace, and how to build the code.
@@ -17,7 +17,7 @@
    * `include` must point at the real folder, or the job isn't deployed.
 
 ###########################################
-`resources/ingestion_job.yml` (local)
+`resources/ingestion_job.yml` (local)  The job definition for running pipelines
 1. What it is: The job definition, a resource file that the bundle includes.
 2. Purpose: It defines the Databricks job: what runs, in what order, on what schedule.
 3. What it contains:
@@ -34,7 +34,7 @@
    * The cron uses Quartz format with a timezone.
 
 ###########################################
-`.github/workflows/deploy.yml` (GitHub)
+`.github/workflows/deploy.yml` (GitHub)   The GitHub Actions workflow file, the CI/CD pipeline definition.
 1. What it is: The GitHub Actions workflow file, the CI/CD pipeline definition.
 2. Purpose: It runs the deployment automatically on every push, so nobody deploys by hand.
 3. What it contains:
