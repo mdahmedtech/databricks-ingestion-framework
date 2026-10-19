@@ -1,39 +1,55 @@
+raw file:
+ s3://.../raw_files/orders_<date>.json
+{
+  "order_id": "ORD-2001",
+  "order_ts": "2026-10-11T23:07:13Z",
+  "status": "COMPLETED",
+  "currency": "USD",
+  "customer": {
+    "customer_id": "C019",
+    "first_name": "Evelyn",
+    "last_name": "Walker",
+    "email": "evelyn.walker@example.com",
+    "country": "CA",
+    "state": "AB"
+  },
+  "items": [
+    {
+      "product_id": "P300",
+      "product_name": "Desk Lamp",
+      "category": "Home",
+      "quantity": 3,
+      "unit_price": 39.0
+    },
+    {
+      "product_id": "P100",
+      "product_name": "Wireless Mouse",
+      "category": "Electronics",
+      "quantity": 2,
+      "unit_price": 25.5
+    }
+  ]
+}
+
+
+BRONZE   orders   (external Delta, append only, keeps the nested shape)
+
+
 """Silver layer: star schema built from bronze.orders.
 
-                 +---------------------------+
-                 |        dim_customer       |
-                 |---------------------------|
-                 |    PK customer_id         |
-                 |    first_name, last_name  |
-                 |    email (PII, lowercase) |
-                 |    country, state         |
-                 |    updated_at             |
-                 +-------------+-------------+
-                               | 1
-                               |
-                               | many
-                 +-------------+-------------+
-                 |     fact_order_items      |
-                 |---------------------------|
-                 |    order_id               |
-                 |    FK customer_id         |
-                 |    FK product_id          |
-                 |    order_ts, order_date   |
-                 |    status, currency       |
-                 |    quantity               |
-                 |    unit_price             |
-                 |    line_total             |
-                 +-------------+-------------+
-                               | many
-                               |
-                               | 1
-                 +-------------+-------------+
-                 |        dim_product        |
-                 |---------------------------|
-                 |    PK product_id          |
-                 |    product_name           |
-                 |    category               |
-                 +---------------------------+
+SILVER   star schema (INSERT OVERWRITE on every run)
+
+ +------------------------+       +------------------------+       +------------------------+
+ |      dim_customer      |       |    fact_order_items    |       |      dim_product       |
+ |------------------------|       |------------------------|       |------------------------|
+ | PK customer_id         |       | order_id               |       | PK product_id          |
+ | first_name, last_name  |1-----N| FK customer_id         |       | product_name           |
+ | email (PII, lowercase) |       | FK product_id          |N-----1| category               |
+ | country, state         |       | order_ts, order_date   |       |                        |
+ | updated_at             |       | status, currency       |       |                        |
+ |                        |       | quantity, unit_price   |       |                        |
+ |                        |       | line_total             |       |                        |
+ +------------------------+       +------------------------+       +------------------------+
 
 Grain of the fact table: one row per product line within an order.
 Gold (daily_sales_by_category) aggregates the fact joined to dim_product.
