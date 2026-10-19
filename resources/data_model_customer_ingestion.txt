@@ -1,4 +1,5 @@
-raw file:
+######################################
+1. Raw file:
  s3://.../raw_files/orders_<date>.json
 {
   "order_id": "ORD-2001",
@@ -31,11 +32,18 @@ raw file:
   ]
 }
 
+######################################
+2. BRONZE   orders   (external Delta, append only, keeps the nested shape)
++-------------------------------------------------------------------------------------------------------------------+
+|                                      BRONZE: orders (raw shape kept, nested)                                      |
++----------+----------------------+-----------+----------+-----------------------------+----------------------------+
+| order_id | order_ts             | status    | currency | customer (struct)           | items (array)              |
++----------+----------------------+-----------+----------+-----------------------------+----------------------------+
+| ORD-2001 | 2026-10-11T23:07:13Z | COMPLETED | USD      | {C019, Evelyn, Walker, ...} | [{P300, ...}, {P100, ...}] |
++----------+----------------------+-----------+----------+-----------------------------+----------------------------+
 
-BRONZE   orders   (external Delta, append only, keeps the nested shape)
-
-
-"""Silver layer: star schema built from bronze.orders.
+######################################
+3. Silver layer: star schema built from bronze.orders.
 
 SILVER   star schema (INSERT OVERWRITE on every run)
 
@@ -52,5 +60,17 @@ SILVER   star schema (INSERT OVERWRITE on every run)
  +------------------------+       +------------------------+       +------------------------+
 
 Grain of the fact table: one row per product line within an order.
+
+######################################
+4. Gold
 Gold (daily_sales_by_category) aggregates the fact joined to dim_product.
 """
+
++----------------------------------------------------------------+
+|     GOLD: daily_sales_by_category (COMPLETED orders only)      |
++------------+-------------+--------------+------------+---------+
+| order_date | category    | total_orders | units_sold | revenue |
++------------+-------------+--------------+------------+---------+
+| 2026-10-11 | Electronics | 1            | 2          | 51.00   |
+| 2026-10-11 | Home        | 1            | 3          | 117.00  |
++------------+-------------+--------------+------------+---------+
