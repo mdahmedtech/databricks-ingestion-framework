@@ -1,7 +1,11 @@
 resources:
   jobs:
     medallion_pipeline:
-      name: medallion_pipeline_${bundle.target}
+      name: orders_daily_load_${bundle.target}
+      schedule:
+        quartz_cron_expression: "0 0 9 * * ?"
+        timezone_id: America/Chicago
+        pause_status: UNPAUSED
 
       # Serverless compute. The wheel built from this repo is installed in the job environment.
       # Config and DDL files are inside the wheel, so the only parameter is the environment.
